@@ -6,7 +6,7 @@
 
 int main() {
 
-	int index = findDNARepetition("AAABBABA", "BBA");
+	int index = findDNARepetition("AAABBABBABA", "BBAB");
 
 	printf("Index of Repetition: %d\n", index);
 

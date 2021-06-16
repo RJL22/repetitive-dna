@@ -1,11 +1,12 @@
 #include "sequence_repetition.h"
 
 static int getSequenceHash(const char* sequence) {
-	int hash = 0;
-	for (int i = 0; i < strlen(sequence); i++) {
-		hash += pow(256, strlen(sequence) - i - 1) * sequence[i];
-		hash = hash % PRIME_MODULUS;
+	int hash = sequence[0];
+	for (int i = 1; i < strlen(sequence); i++) {
+		hash = (hash * 256) % PRIME_MODULUS;
+		hash += sequence[i];
 	}
+	hash = hash % PRIME_MODULUS;
 
 	return hash;
 }
@@ -20,17 +21,29 @@ int findDNARepetition(const char* sequence, const char* motif) {
 
 	int h = getSequenceHash(possibleSub);
 
+	int leftBaseOffset = 1;
+
+	for (int i = 0; i < strlen(motif) - 1; i++) {
+		leftBaseOffset = (leftBaseOffset * 256) % PRIME_MODULUS;
+	}
+
+	printf("Left base offset: %d\n", leftBaseOffset);
+
+	//Computing rolling hash
 	for (int i = 0; i < strlen(sequence) - strlen(motif); i++) {
+		printf("R and H: %d %d\n", r, h);
+
 		if (r == h) {
 			strncpy(possibleSub, sequence + i, strlen(motif));
 			if (strcmp(motif, possibleSub) == 0) {
 				return i;
 			}
 		}
-		h -= (int)(sequence[i] * pow(256, strlen(motif) - 1));
+		h += PRIME_MODULUS - ((leftBaseOffset * sequence[i]) % PRIME_MODULUS); 
 		h *= 256;
 		h += sequence[i + strlen(motif)];
 		h = h % PRIME_MODULUS;
+
 		if (h < 0) {
 			h += PRIME_MODULUS;
 		}
